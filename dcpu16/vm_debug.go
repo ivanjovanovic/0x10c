@@ -4,15 +4,15 @@ import "fmt"
 
 func (m memory_t) Rows() []string {
   tableWidth := 16
-  rows := make([]string, memory_size / tableWidth)
+  rows := make([]string, MEMORY_SIZE / tableWidth)
   counter := 0
-  for i := 0; i < memory_size / tableWidth; i++ {
+  for i := 0; i < MEMORY_SIZE / tableWidth; i++ {
     memoryLocation := fmt.Sprintf("%04x:", i*tableWidth)
     cells := ""
     cellSum := 0
     // loop over
     for j := 0; j < tableWidth; j++ {
-      value := memory[word(i*tableWidth + j)]
+      value := memory[Word(i*tableWidth + j)]
       cells = fmt.Sprintf("%s %04x", cells, value)
       cellSum += int(value)
     }

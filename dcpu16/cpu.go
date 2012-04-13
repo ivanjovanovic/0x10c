@@ -1,12 +1,12 @@
 package dcpu16
 
 type dcpu16_t struct {
-  registers [8]word
-  O word
-  PC word
-  SP word
-  literals [0x20]word
-  skipMap map[word]word
+  registers [8]Word
+  O Word
+  PC Word
+  SP Word
+  literals [0x20]Word
+  skipMap map[Word]Word
 }
 var dcpu16 = new(dcpu16_t)
 
@@ -17,10 +17,10 @@ func (cpu *dcpu16_t) reset() {
   }
 
   for i, _ := range cpu.literals {
-    cpu.literals[i] = word(i)
+    cpu.literals[i] = Word(i)
   }
 
-  cpu.skipMap = map[word]word {
+  cpu.skipMap = map[Word]Word {
     0x00: 0, 0x01: 0, 0x02: 0, 0x03: 0, 0x04: 0,
     0x05: 0, 0x06: 0, 0x07: 0, 0x08: 0, 0x09: 0,
     0x0a: 0, 0x0b: 0, 0x0c: 0, 0x0d: 0, 0x0e: 0,
@@ -59,7 +59,7 @@ func (cpu *dcpu16_t) step() {
   }
 }
 
-func (cpu *dcpu16_t) decodeInstruction(instruction word) (bool, word, word, word) {
+func (cpu *dcpu16_t) decodeInstruction(instruction Word) (bool, Word, Word, Word) {
   // decode operands
   opcode := instruction & 0x000f
   a := (instruction & 0x03f0) >> 4
@@ -77,7 +77,7 @@ func (cpu *dcpu16_t) decodeInstruction(instruction word) (bool, word, word, word
   return basic, opcode, a, b
 }
 
-func (cpu *dcpu16_t) resolveOperand(val word) *word {
+func (cpu *dcpu16_t) resolveOperand(val Word) *Word {
   switch val {
   case 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07:
     return &cpu.registers[val]
@@ -113,11 +113,11 @@ func (cpu *dcpu16_t) resolveOperand(val word) *word {
   return &cpu.literals[val - 0x20]
 }
 
-func (cpu *dcpu16_t) executeBasic(opcode, destCode word, aOp, bOp *word) {
+func (cpu *dcpu16_t) executeBasic(opcode, destCode Word, aOp, bOp *Word) {
 
   a := *aOp
   b := *bOp
-  var res word
+  var res Word
 
   switch opcode {
   // 0x1: SET a, b - sets a to b
@@ -127,8 +127,8 @@ func (cpu *dcpu16_t) executeBasic(opcode, destCode word, aOp, bOp *word) {
   // 2 cycles plus cost of a and b
   case 0x2:
     var sum uint = uint(a) + uint(b)
-    cpu.O = word(sum >> 16)
-    res = word(sum)
+    cpu.O = Word(sum >> 16)
+    res = Word(sum)
 
   // 0x3: SUB a, b - sets a to a-b, sets O to 0xffff if there's an underflow, 0x0 otherwise
   // 2 cycles plus cost of a and b
@@ -140,7 +140,7 @@ func (cpu *dcpu16_t) executeBasic(opcode, destCode word, aOp, bOp *word) {
     } else {
       cpu.O = 0x0
     }
-    res = word(diff)
+    res = Word(diff)
 
   // 0x4: MUL a, b - sets a to a*b, sets O to ((a*b)>>16)&0xffff
   // 2 cycles plus cost of a and b
@@ -234,7 +234,7 @@ func (cpu *dcpu16_t) executeBasic(opcode, destCode word, aOp, bOp *word) {
   }
 }
 
-func (cpu *dcpu16_t) executeExtended(opcode word, aOp *word) {
+func (cpu *dcpu16_t) executeExtended(opcode Word, aOp *Word) {
   switch opcode {
     // 0x01: JSR a - pushes the address of the next instruction to the stack, then sets PC to a
     // JSR takes 2 cycles, plus the cost of a
@@ -245,7 +245,7 @@ func (cpu *dcpu16_t) executeExtended(opcode word, aOp *word) {
   }
 }
 
-func (cpu *dcpu16_t) nextWord() word {
+func (cpu *dcpu16_t) nextWord() Word {
   val := memory[cpu.PC]
   cpu.PC++
   return val
