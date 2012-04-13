@@ -14,8 +14,8 @@ func Assemble(program []string) []dcpu16.Word {
   /* labels := make(map[string]word)*/
   /* labelPlaceholders := make(map[string][]word)*/
 
-  for _, line := range program {
-    line = line
+  for i, _ := range program {
+    byteCode[i] = dcpu16.Word(i)
   }
 
   return byteCode
