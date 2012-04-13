@@ -6,6 +6,7 @@ type dcpu16_t struct {
   PC word
   SP word
   literals [0x20]word
+  skipMap map[word]word
 }
 var dcpu16 = new(dcpu16_t)
 
@@ -18,6 +19,21 @@ func (cpu *dcpu16_t) reset() {
   for i, _ := range cpu.literals {
     cpu.literals[i] = word(i)
   }
+
+  cpu.skipMap = map[word]word {
+    0x00: 0, 0x01: 0, 0x02: 0, 0x03: 0, 0x04: 0,
+    0x05: 0, 0x06: 0, 0x07: 0, 0x08: 0, 0x09: 0,
+    0x0a: 0, 0x0b: 0, 0x0c: 0, 0x0d: 0, 0x0e: 0,
+    0x0f: 0,
+
+    0x10: 1, 0x11: 1, 0x12: 1, 0x13: 1, 0x14: 1,
+    0x15: 1, 0x16: 1, 0x17: 1,
+
+    0x18: 0, 0x19: 0, 0x1a: 0, 0x1b: 0, 0x1c: 0,
+    0x1d: 0,
+
+    0x1E: 1, 0x1F: 1}
+
 
   cpu.SP = 0
   cpu.PC = 0
@@ -111,11 +127,7 @@ func (cpu *dcpu16_t) executeBasic(opcode, destCode word, aOp, bOp *word) {
   // 2 cycles plus cost of a and b
   case 0x2:
     var sum uint = uint(a) + uint(b)
-    if sum > 65535 {
-      cpu.O = 0x0001
-    } else {
-      cpu.O = 0x0
-    }
+    cpu.O = word(sum >> 16)
     res = word(sum)
 
   // 0x3: SUB a, b - sets a to a-b, sets O to 0xffff if there's an underflow, 0x0 otherwise
@@ -240,24 +252,10 @@ func (cpu *dcpu16_t) nextWord() word {
 }
 
 func (cpu *dcpu16_t) skipNextInstruction() {
-  skipMap := map[word]word {
-    0x00: 0, 0x01: 0, 0x02: 0, 0x03: 0, 0x04: 0,
-    0x05: 0, 0x06: 0, 0x07: 0, 0x08: 0, 0x09: 0,
-    0x0a: 0, 0x0b: 0, 0x0c: 0, 0x0d: 0, 0x0e: 0,
-    0x0f: 0,
-
-    0x10: 1, 0x11: 1, 0x12: 1, 0x13: 1, 0x14: 1,
-    0x15: 1, 0x16: 1, 0x17: 1,
-
-    0x18: 0, 0x19: 0, 0x1a: 0, 0x1b: 0, 0x1c: 0,
-    0x1d: 0,
-
-    0x1E: 1, 0x1F: 1}
-
   instruction := cpu.nextWord()
   _, _, a, b := cpu.decodeInstruction(instruction)
 
-  cpu.PC += skipMap[a] + skipMap[b]
+  cpu.PC += cpu.skipMap[a] + cpu.skipMap[b]
 }
 
 
@@ -270,3 +268,4 @@ func (cpu *dcpu16_t) skipNextInstruction() {
 func (cpu *dcpu16_t) Step() {
   cpu.step()
 }
+
