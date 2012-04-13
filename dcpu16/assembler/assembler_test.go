@@ -4,6 +4,7 @@ import "testing"
 import "os"
 import "bufio"
 import "io"
+import "io/ioutil"
 import "github.com/ivanjovanovic/0x10c/dcpu16"
 import "fmt"
 
@@ -14,13 +15,25 @@ func readLines(filename string) []string {
 
   for {
     line, _, _ := reader.ReadLine()
-    // is there a better way to get to EOF
     if _, err := reader.Peek(1); err == io.EOF {
       break
     }
     lines = append(lines, string(line))
   }
   return lines
+}
+
+func readFile(filename string) string {
+  file, _ := os.Open(filename)
+  reader := bufio.NewReader(file)
+
+  contents, err := ioutil.ReadAll(reader)
+
+  if err != nil {
+    panic(err.Error())
+  }
+
+  return string(contents)
 }
 
 func assertSame(specified, assembled []string) bool {
@@ -41,25 +54,28 @@ func castMemoryContent(memory []dcpu16.Word) []string {
   return memString
 }
 
-func printMemory(spec, assembled []string) {
-  fmt.Print("Specified:\tAssembled\t\n")
+// Print nice table with specified and comparable memory
+func printMemoryComparison(spec, assembled []string) {
+  fmt.Print("Specified\tAssembled\t\n")
   for i, val := range spec {
     fmt.Printf("   %s\t\t  %s\n", val, assembled[i])
   }
 }
 
+// Tests for official specification given on DCPU16 spec page
+// http://0x10c.com/doc/dcpu-16.txt
 func TestAssemblerSpecification(t *testing.T) {
-  programLines := readLines("test/spec.dasm")
+  program := readFile("test/spec.dasm")
   memorySpec := readLines("test/spec.mem")
 
-  memoryImage := Assemble(programLines)
+  memoryImage := Assemble(program)
 
   comparableMemoryImage := castMemoryContent(memoryImage)[0:len(memorySpec)]
 
   same := assertSame(memorySpec, comparableMemoryImage)
 
   if !same {
-    printMemory(memorySpec, comparableMemoryImage)
+    printMemoryComparison(memorySpec, comparableMemoryImage)
     t.Error("Returned memory different from specified")
   }
 }

@@ -7,7 +7,8 @@ var byteCode []dcpu16.Word
 /* var labels map[string]word*/
 /* var labelPlaceholders map[string][]word*/
 
-func Assemble(program []string) []dcpu16.Word {
+
+func Assemble(program string) []dcpu16.Word {
 
   // initialize vars
   byteCode := make([]dcpu16.Word, dcpu16.MEMORY_SIZE)
