@@ -1,0 +1,1 @@
+This repository is collection of my Google Go code experiments related to 0x10c game.
