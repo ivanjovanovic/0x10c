@@ -48,17 +48,18 @@ func printMemory(spec, assembled []string) {
   }
 }
 
-func TestAssembler(t *testing.T) {
-  inputLines := readLines("test/spec.dasm")
-  memoryImage := Assemble(inputLines)
+func TestAssemblerSpecification(t *testing.T) {
+  programLines := readLines("test/spec.dasm")
   memorySpec := readLines("test/spec.mem")
 
-  relevantMemoryImage := castMemoryContent(memoryImage)[0:len(memorySpec)]
+  memoryImage := Assemble(programLines)
 
-  same := assertSame(memorySpec, relevantMemoryImage)
+  comparableMemoryImage := castMemoryContent(memoryImage)[0:len(memorySpec)]
+
+  same := assertSame(memorySpec, comparableMemoryImage)
 
   if !same {
-    printMemory(memorySpec, relevantMemoryImage)
+    printMemory(memorySpec, comparableMemoryImage)
     t.Error("Returned memory different from specified")
   }
 }
