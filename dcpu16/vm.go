@@ -1,16 +1,26 @@
 package dcpu16
 
-type vm_t struct {
-  Cpu *dcpu16_t
-  Memory memory_t
+type VM struct {
+	CPU *dcpu16
+	Memory memory
 }
 
-var VM *vm_t = new(vm_t)
+func (vm *VM) Reset() {
+	vm.resetCpu()
+	vm.clearMemory()
+}
 
-func (vm *vm_t) Reset() {
-  vm.Cpu = dcpu16
-  vm.Cpu.reset()
+func (vm *VM) resetCpu() {
+	vm.CPU.reset()
+}
 
-  vm.Memory = memory
-  vm.Memory.clear()
+func (vm *VM) clearMemory() {
+	vm.Memory.clear()
+}
+
+func NewVM() *VM {
+	newVM := new(VM)
+	newVM.Memory = newMemory()
+        newVM.CPU = newCPU(newVM.Memory)
+	return newVM
 }

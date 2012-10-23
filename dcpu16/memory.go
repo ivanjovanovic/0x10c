@@ -1,17 +1,19 @@
 package dcpu16
 
 type Word uint16
-type memory_t  []Word
+type memory  []Word
 const MEMORY_SIZE int = 65536
 
-var memory = make(memory_t, MEMORY_SIZE)
-
-func (m memory_t) clear() {
-  for i := 0; i < MEMORY_SIZE; i++ {
-    m[i] = 0
-  }
+func newMemory() memory {
+	return make(memory, MEMORY_SIZE)
 }
 
-func (m memory_t) Set(address, val uint16) {
-  memory[Word(address)] = Word(val)
+func (m memory) clear() {
+	for i := 0; i < MEMORY_SIZE; i++ {
+		m[i] = 0
+	}
+}
+
+func (m memory) Set(address, val uint16) {
+	m[Word(address)] = Word(val)
 }

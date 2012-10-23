@@ -2,7 +2,7 @@ package dcpu16
 
 import "fmt"
 
-func (m memory_t) Rows() []string {
+func (m memory) Rows() []string {
   tableWidth := 16
   rows := make([]string, MEMORY_SIZE / tableWidth)
   counter := 0
@@ -10,9 +10,9 @@ func (m memory_t) Rows() []string {
     memoryLocation := fmt.Sprintf("%04x:", i*tableWidth)
     cells := ""
     cellSum := 0
-    // loop over
-    for j := 0; j < tableWidth; j++ {
-      value := memory[Word(i*tableWidth + j)]
+		// loop over
+		for j := 0; j < tableWidth; j++ {
+      value := m[Word(i*tableWidth + j)]
       cells = fmt.Sprintf("%s %04x", cells, value)
       cellSum += int(value)
     }
@@ -27,7 +27,7 @@ func (m memory_t) Rows() []string {
   return rows
 }
 
-func (c *dcpu16_t) Print() {
+func (c *dcpu16) Print() {
   registers := make([]string, 3)
   registers[0] = fmt.Sprint("  A     B     C     X     Y     Z     I     J     O     PC     SP")
   registers[1] = fmt.Sprint("----- ----- ----- ----- ----- ----- ----- ----- ----- ------ ------")
@@ -41,7 +41,7 @@ func (c *dcpu16_t) Print() {
   }
 }
 
-func (c *dcpu16_t) Registers() []string {
+func (c *dcpu16) Registers() []string {
   registers := make([]string, 3)
   registers[0] = fmt.Sprint("  A     B     C     X     Y     Z     I     J     O     PC     SP")
   registers[1] = fmt.Sprint("----- ----- ----- ----- ----- ----- ----- ----- ----- ------ ------")
